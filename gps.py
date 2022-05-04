@@ -41,22 +41,40 @@ class Object:
 
 
 
-for port in COMPorts.get_com_ports().data:
-    print(port.device)
-    print(port.description)
 
-if sys.platform == "windows":
-    gps_port = COMPorts.get_device_by_description(description="USB Serial Device")
-else:
-    gps_port = COMPorts.get_device_by_description(description="u-blox 7 - GPS/GNSS Receiver")
+def setup_gps():
+    for port in COMPorts.get_com_ports().data:
+        print(port.device)
+        print(port.description)
+
+    if sys.platform == "windows":
+        gps_port = COMPorts.get_device_by_description(description="USB Serial Device")
+    else:
+        gps_port = COMPorts.get_device_by_description(description="u-blox 7 - GPS/GNSS Receiver")
 
 
-gps = serial.Serial(gps_port, 9600, timeout=1)
-gps.flushInput()
-gps_data = gps.readline()
-print(gps_data)
+    gps = serial.Serial(gps_port, 9600, timeout=1)
+    gps.flushInput()
+    gps_data = gps.readline()
+    print(gps_data)
+    return gps
 
-try:
+
+def get_gps(gps):
+    while True:
+        line = gps.readline().strip()
+        line = line.decode()
+        if re.match("^\$GPRMC", line):
+            #print("matched gprmc")
+            msg = NMEAReader.parse(line)
+            #print("Lat: %f" % msg.lat)
+            #print("Lon: %f" % msg.lon)
+            return msg.lat, msg.lon
+        
+
+
+
+""" try:
     while gps_data:
         line = gps.readline().strip()
         line = line.decode()
@@ -68,4 +86,4 @@ try:
             except:
                 print("not connected yet")
 except KeyboardInterrupt:
-    print("Interrupted")
+    print("Interrupted") """
