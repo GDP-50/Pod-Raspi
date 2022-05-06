@@ -10,6 +10,6 @@ def setupBluetoothSocket():
     socket=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
     socket.connect((bd_addr, port))
 
-    socket.send("hello!!")
+    socket.send("0")
     return socket
 
